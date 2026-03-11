@@ -76,7 +76,7 @@ def preprocess_data(df):
             df = pd.concat([df, pd.get_dummies(df[col], prefix=col)], axis=1) # encode 
             df.drop(col, axis=1, inplace=True) # drop encoded columns
 
-    pd.to_numeric(df, errors="coerce") # make all columns numeric
+        df[col] = pd.to_numeric(df[col], errors="coerce") # make all columns numeric
 
     return df
 
