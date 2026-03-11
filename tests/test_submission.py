@@ -89,7 +89,7 @@ class TestDataProcessing:
         """Test train/test split and scaling."""
         try:
             X, y = data_processing.prepare_classification_data(
-                sample_heart_data, 'target'
+                sample_heart_data, 'num' # changed to 'num', original was 'target'
             )
             result = data_processing.split_and_scale(X, y)
             assert isinstance(result, tuple) and len(result) == 5, "Should return 5 items"

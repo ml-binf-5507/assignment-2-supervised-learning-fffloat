@@ -148,7 +148,6 @@ def get_best_elasticnet_model(X_train, y_train, X_test, y_test,
 
     for l1_ratio, alpha in zip(l1_ratios, alphas):
         model = train_elasticnet_grid(X_train, y_train, l1_ratios, alphas)
-        model.fit(X_train, y_train)
         
         # r2 scores on training data
         y_pred_train = model.predict(X_train)

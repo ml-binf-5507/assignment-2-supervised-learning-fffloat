@@ -68,14 +68,23 @@ def preprocess_data(df):
     # - Ensure all columns are numeric
     df = df.copy()
 
-    for col in df.columns:
-        if df[col].dtype in ("int64", "float64"): # if numeric 
-            df[col] = df[col].fillna(df[col].mean()) # fill na with mean
-        elif df[col].dtype == 'object': # if categorical
-            df[col] = df[col].fillna(df[col].mode()[0]) # fill na with most likely value
-            df = pd.concat([df, pd.get_dummies(df[col], prefix=col)], axis=1) # encode 
-            df.drop(col, axis=1, inplace=True) # drop encoded columns
+    # extra step: convert all string type columns to object so that things work
+    for col in df.select_dtypes(include=['string']).columns:
+        df[col] = df[col].astype('object')
 
+    # separate numeric and categorical columns
+    num_col = df.select_dtypes(include=['int64', 'float64']).columns
+    cate_col = df.select_dtypes(include=['object']).columns
+
+    for col in num_col: # numeric columns
+        df[col] = df[col].fillna(df[col].mean()) # fill na with mean
+    
+    for col in cate_col: # categorical columns
+        df[col] = df[col].fillna(df[col].mode()[0]) # fill na with most likely value
+        df = pd.concat([df, pd.get_dummies(df[col], prefix=col)], axis=1) # encode, join encoded w original
+        df.drop(col, axis=1, inplace=True) # drop encoded columns
+
+    for col in df.columns:
         df[col] = pd.to_numeric(df[col], errors="coerce") # make all columns numeric
 
     return df
