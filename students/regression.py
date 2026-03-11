@@ -38,7 +38,19 @@ def train_elasticnet_grid(X_train, y_train, l1_ratios, alphas):
     #   - Calculate R² score on training data
     #   - Store results
     # - Return DataFrame with results
-    pass
+    results = []
+    
+    for l1_ratio in l1_ratios:
+        for alpha in alphas:
+            model = ElasticNet(alpha = alpha, l1_ratio = l1_ratio, max_iter = 5000)
+            model.fit(X_train, y_train)
+            y_pred = model.predict(X_train)
+            r2_scores = r2_score(y_train, y_pred)
+            results.append({'l1_ratio': l1_ratio, 'alpha': alpha, 'r2_score': r2_scores, 'model': model})
+    
+    results_df = pd.DataFrame(results)
+    
+    return results_df
 
 
 def create_r2_heatmap(results_df, l1_ratios, alphas, output_path=None):
@@ -68,7 +80,22 @@ def create_r2_heatmap(results_df, l1_ratios, alphas, output_path=None):
     # - Add colorbar
     # - Save to output_path if provided
     # - Return figure object
-    pass
+    # pivot results, index: y-axis, columns: x-axis
+    pivot_df = results_df.pivot(index = "alpha", columns = "l1_ratio", values = "r2_score") 
+
+    # plotting heatmap using seaborn
+    fig = sns.heatmap(pivot_df, cmap = "coolwarm") # added colour map
+    fig.set_xlabel("l1_ratio") 
+    fig.set_ylabel("alpha")
+    fig.set_title("R² Score")
+
+    # save figure if output_path inputed
+    if output_path:
+        plt.savefig(output_path)
+
+    plt.show()
+
+    return fig
 
 
 def get_best_elasticnet_model(X_train, y_train, X_test, y_test, 
@@ -111,4 +138,47 @@ def get_best_elasticnet_model(X_train, y_train, X_test, y_test,
     # - Train models using train_elasticnet_grid
     # - Select model with highest test R² (not training R²)
     # - Return dictionary with best model and parameters
-    pass
+    results = []
+
+    best_model = []
+    best_l1 = 0
+    best_alpha = 0
+    best_r2_train = 0
+    best_r2_test = 0
+
+    for l1_ratio, alpha in zip(l1_ratios, alphas):
+        model = train_elasticnet_grid(X_train, y_train, l1_ratios, alphas)
+        model.fit(X_train, y_train)
+        
+        # r2 scores on training data
+        y_pred_train = model.predict(X_train)
+        r2_train = r2_score(y_train, y_pred_train)
+        
+        # r2 scores on testing data
+        y_pred_test = model.predict(X_test)
+        r2_test = r2_score(y_test, y_pred_test)
+        
+        if r2_test > best_r2_test:
+            best_r2_test = r2_test
+            best_r2_train = r2_train
+            best_alpha = alpha
+            best_l1 = l1_ratio
+            best_model = model
+        
+        # appending results
+        results.append({"model": model,
+                        "l1_ratio": l1_ratio, 
+                        "alpha": alpha, 
+                        "train_r2": r2_train, 
+                        "test_r2": r2_test})
+    
+    results_df = pd.DataFrame(results) # convert results to df
+
+    output = {'model': best_model,
+        'best_l1_ratio': best_l1,
+        'best_alpha': best_alpha,
+        'train_r2': best_r2_train,
+        'test_r2': best_r2_test,
+        'results_df': results_df}
+    
+    return output

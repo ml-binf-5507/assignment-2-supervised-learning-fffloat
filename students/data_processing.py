@@ -38,7 +38,14 @@ def load_heart_disease_data(filepath):
     # Hint: Use pd.read_csv()
     # Hint: Check if file exists and raise helpful error if not
     # TODO: Implement data loading
-    pass
+    try:
+        df = pd.read_csv(filepath)
+        if df.empty:
+            raise ValueError
+    except FileNotFoundError:
+        print("File not found. Check file path.")
+    
+    return df
 
 
 def preprocess_data(df):
@@ -59,7 +66,19 @@ def preprocess_data(df):
     # - Handle missing values
     # - Encode categorical variables (e.g., sex, cp, fbs, etc.)
     # - Ensure all columns are numeric
-    pass
+    df = df.copy()
+
+    for col in df.columns:
+        if df[col].dtype in ("int64", "float64"): # if numeric 
+            df[col] = df[col].fillna(df[col].mean()) # fill na with mean
+        elif df[col].dtype == 'object': # if categorical
+            df[col] = df[col].fillna(df[col].mode()[0]) # fill na with most likely value
+            df = pd.concat([df, pd.get_dummies(df[col], prefix=col)], axis=1) # encode 
+            df.drop(col, axis=1, inplace=True) # drop encoded columns
+
+    pd.to_numeric(df, errors="coerce") # make all columns numeric
+
+    return df
 
 
 def prepare_regression_data(df, target='chol'):
@@ -82,7 +101,12 @@ def prepare_regression_data(df, target='chol'):
     # - Remove rows with missing chol values
     # - Exclude chol from features
     # - Return X (features) and y (target)
-    pass
+    df = df.copy()
+    df = df.dropna(subset = [target]) # drop na values from target column chol
+    y = df[target] # subset target column
+    X = df.drop([target], axis = 1) # features = drop target column
+    
+    return X, y
 
 
 def prepare_classification_data(df, target='num'):
@@ -106,7 +130,12 @@ def prepare_classification_data(df, target='num'):
     # - Exclude target from features
     # - Exclude chol from features
     # - Return X (features) and y (target)
-    pass
+    df = df.copy()
+    df[target] = (df[target] > 0).astype(int) # if df[target] > 0, df[target] == 1
+    y = df[target] # target column 
+    X = df.drop([target, "chol"], axis = 1)  # exclude target and chol
+
+    return X, y
 
 
 def split_and_scale(X, y, test_size=0.2, random_state=42):
@@ -135,4 +164,9 @@ def split_and_scale(X, y, test_size=0.2, random_state=42):
     # - Fit StandardScaler on training data only
     # - Transform both train and test data
     # - Return scaled data and scaler object
-    pass
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = test_size, random_state = random_state)
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
+    X_test_scaled = scaler.transform(X_test)
+
+    return  X_train_scaled, X_test_scaled, y_train, y_test, scaler

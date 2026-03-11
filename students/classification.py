@@ -42,7 +42,11 @@ def train_logistic_regression_grid(X_train, y_train, param_grid=None):
     # - Use GridSearchCV with cv=5
     # - Fit on training data
     # - Return fitted GridSearchCV object
-    pass
+    log_model = LogisticRegression(max_iter=1000)
+    grid_search = GridSearchCV(log_model, param_grid, cv = 5, scoring = "accuracy")
+    grid_search.fit(X_train, y_train)
+
+    return grid_search
 
 
 def train_knn_grid(X_train, y_train, param_grid=None):
@@ -78,7 +82,11 @@ def train_knn_grid(X_train, y_train, param_grid=None):
     # - Use GridSearchCV with cv=5
     # - Fit on training data
     # - Return fitted GridSearchCV object
-    pass
+    knn = KNeighborsClassifier()
+    grid_search_knn = GridSearchCV(knn, param_grid, cv=5, scoring='accuracy')
+    grid_search_knn.fit(X_train, y_train)
+
+    return grid_search_knn
 
 
 def get_best_logistic_regression(X_train, y_train, X_test, y_test, param_grid=None):
@@ -110,7 +118,16 @@ def get_best_logistic_regression(X_train, y_train, X_test, y_test, param_grid=No
     # - Use train_logistic_regression_grid
     # - Extract best model
     # - Return dictionary
-    pass
+    log_reg = train_logistic_regression_grid(X_train, y_train, param_grid)
+    log_reg.fit(X_test, y_test)
+    best_params = log_reg.best_params_
+    best_model = log_reg.best_estimator_
+    cv_results_df = pd.DataFrame(log_reg.cv_results_)
+    output = {"model": best_model,
+              "best_params": best_params,
+              "cv_results_df": cv_results_df}
+
+    return output
 
 
 def get_best_knn(X_train, y_train, X_test, y_test, param_grid=None):
@@ -143,4 +160,15 @@ def get_best_knn(X_train, y_train, X_test, y_test, param_grid=None):
     # - Use train_knn_grid
     # - Extract best model and best_k
     # - Return dictionary
-    pass
+    knn = train_knn_grid(X_train, y_train, param_grid)
+    knn.fit(X_test, y_test)
+    best_params = knn.best_params_
+    best_model = knn.best_estimator_
+    best_k = knn.best_params_["n_neighbors"]
+    cv_results_df = pd.DataFrame(knn.cv_results_)
+    output = {"model": best_model,
+              "best_params": best_params,
+              "best_k": best_k,
+              "cv_results_df": cv_results_df}
+
+    return output

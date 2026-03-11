@@ -24,29 +24,25 @@ Do NOT:
 
 **Did you use any AI tools to help with this assignment?**
 
-_____ Yes     _____ No
+__X___ Yes     _____ No
 
 **If yes, please tell us:**
 
 1. **What tools did you use?** (e.g., ChatGPT, Claude, GitHub Copilot)
    
-   _________________________________________________________________
+   ___ChatGPT______________________________________________________________
 
 2. **What specific things did you ask them to do?** (Be specific)
    
-   _________________________________________________________________
-   
-   _________________________________________________________________
+   __I kept getting an error for split_and_scale test when all the other tests are either passed or skipped. I tried to fix the code myself but the error was persistent and I didn't know what I did wrong, so I used ChatGPT to better understand where the error originated._________
 
 3. **How much of your final code came from AI vs. your own work?** (e.g., "AI gave me the formula, I wrote the loop" or "AI helped me debug an error")
    
-   _________________________________________________________________
-   
-   _________________________________________________________________
+   ___I had a better understanding on the error, but did not implement the changes suggested by ChatGPT (it didn't really make sense)._________
 
 4. **Can you explain your code?** (Can you walk through what each function does and why you wrote it that way?)
    
-   _____ Yes, I can explain it well
+   ___X__ Yes, I can explain it well
    
    _____ Mostly, but I have some questions
    
