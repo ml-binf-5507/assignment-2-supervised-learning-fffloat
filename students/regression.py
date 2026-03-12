@@ -44,8 +44,8 @@ def train_elasticnet_grid(X_train, y_train, l1_ratios, alphas):
         for alpha in alphas:
             model = ElasticNet(alpha = alpha, l1_ratio = l1_ratio, max_iter = 5000)
             model.fit(X_train, y_train)
-            y_pred = model.predict(X_train)
-            r2_scores = r2_score(y_train, y_pred)
+            y_pred = model.predict(X_train) 
+            r2_scores = r2_score(y_train, y_pred) # calculate r2 sscore
             results.append({'l1_ratio': l1_ratio, 'alpha': alpha, 'r2_score': r2_scores, 'model': model})
     
     results_df = pd.DataFrame(results)
@@ -80,11 +80,13 @@ def create_r2_heatmap(results_df, l1_ratios, alphas, output_path=None):
     # - Add colorbar
     # - Save to output_path if provided
     # - Return figure object
+    
     # pivot results, index: y-axis, columns: x-axis
     pivot_df = results_df.pivot(index = "alpha", columns = "l1_ratio", values = "r2_score") 
 
-    # plotting heatmap using seaborn
-    fig = sns.heatmap(pivot_df, cmap = "coolwarm") # added colour map
+   # plotting heatmap using seaborn
+    fig = sns.heatmap(pivot_df, cmap = "coolwarm", cbar_kws={'label': 'R² Score'},
+                      annot=True, fmt=".2f") # added colour map, colour map label, annotation
     fig.set_xlabel("l1_ratio") 
     fig.set_ylabel("alpha")
     fig.set_title("R² Score")
@@ -93,7 +95,6 @@ def create_r2_heatmap(results_df, l1_ratios, alphas, output_path=None):
     if output_path:
         plt.savefig(output_path)
 
-    plt.show()
 
     return fig
 
@@ -140,22 +141,27 @@ def get_best_elasticnet_model(X_train, y_train, X_test, y_test,
     # - Return dictionary with best model and parameters
     results = []
 
-    best_model = []
+    best_model = None
     best_l1 = 0
     best_alpha = 0
-    best_r2_train = 0
-    best_r2_test = 0
+    best_r2_train = -float("inf")
+    best_r2_test = -float("inf")
 
-    for l1_ratio, alpha in zip(l1_ratios, alphas):
-        model = train_elasticnet_grid(X_train, y_train, l1_ratios, alphas)
-        
-        # r2 scores on training data
-        y_pred_train = model.predict(X_train)
-        r2_train = r2_score(y_train, y_pred_train)
+    # train model
+    grid = train_elasticnet_grid(X_train, y_train, l1_ratios=l1_ratios,
+        alphas=alphas)
+    
+    for i in range(len(grid)):
+        model = grid["model"][i] # retrieve model
         
         # r2 scores on testing data
         y_pred_test = model.predict(X_test)
         r2_test = r2_score(y_test, y_pred_test)
+
+        # retrieve alpha, l1_ratio, r2_train
+        alpha = grid.loc[i, "alpha"]
+        l1_ratio = grid.loc[i, "l1_ratio"]
+        r2_train = grid.loc[i, "r2_score"]
         
         if r2_test > best_r2_test:
             best_r2_test = r2_test

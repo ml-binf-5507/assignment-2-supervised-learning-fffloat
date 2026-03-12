@@ -66,26 +66,32 @@ def preprocess_data(df):
     # - Handle missing values
     # - Encode categorical variables (e.g., sex, cp, fbs, etc.)
     # - Ensure all columns are numeric
-    df = df.copy()
 
     # extra step: convert all string type columns to object so that things work
     for col in df.select_dtypes(include=['string']).columns:
         df[col] = df[col].astype('object')
 
-    # separate numeric and categorical columns
-    num_col = df.select_dtypes(include=['int64', 'float64']).columns
-    cate_col = df.select_dtypes(include=['object']).columns
+    # handle missing values
+    for col in df.columns:
+        if df[col].isna().mean() < 0.05:  # na < 5% --> drop na
+            df = df.dropna(subset=[col])
+        elif df[col].isna().mean() < 0.4:  # na < 40% --> fillna
+            if df[col].dtype in ("int64", "float64"):       # numeric columns
+                df[col] = df[col].fillna(df[col].mean())    # fill na with mean
+            elif df[col].dtype == "object":                 # categorical columns
+                df[col] = df[col].fillna(df[col].mode()[0]) # fill na with most likely value
+        else:
+            df = df.drop(col, axis=1) # na > 40% --> drop column
 
-    for col in num_col: # numeric columns
-        df[col] = df[col].fillna(df[col].mean()) # fill na with mean
+    cate_col = df.select_dtypes(include=['object']).columns # categorical columns
     
     for col in cate_col: # categorical columns
-        df[col] = df[col].fillna(df[col].mode()[0]) # fill na with most likely value
-        df = pd.concat([df, pd.get_dummies(df[col], prefix=col)], axis=1) # encode, join encoded w original
-        df.drop(col, axis=1, inplace=True) # drop encoded columns
+        encoded = pd.get_dummies(df[col], prefix=col)
+        df = pd.concat([df, encoded], axis=1) # encode, join encoded w original
+        df.drop(col, axis=1, inplace=True) # drop original columns
 
     for col in df.columns:
-        df[col] = pd.to_numeric(df[col], errors="coerce") # make all columns numeric
+        df[col] = df[col].astype(float) # make all columns numeric
 
     return df
 

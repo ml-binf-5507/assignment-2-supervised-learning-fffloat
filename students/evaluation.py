@@ -250,19 +250,20 @@ def plot_comparison_curves(y_true, y_pred_proba_log, y_pred_proba_knn,
     # - Add legends with AUROC/AUPRC scores
     # - Save to output_path if provided
     # - Return figure
-    # knn ROC curve and ROC 
+    
+    # knn AUROC and AUPRC
     fpr_knn, tpr_knn, _ = roc_curve(y_true, y_pred_proba_knn)
-    roc_auc_knn = auc(fpr_knn, tpr_knn)
-    # knn precision recall curve and PR area
+    roc_auc_knn = calculate_auroc_score(y_true, y_pred_proba_knn)
+    
     precision_knn, recall_knn, _ = precision_recall_curve(y_true, y_pred_proba_knn)
-    prc_auc_knn = average_precision_score(y_true, y_pred_proba_knn)
-
-    # logistic regression ROC curve and ROC 
+    prc_auc_knn = calculate_auprc_score(y_true, y_pred_proba_knn)
+    
+    # logistic regression AUROC and AUPRC
     fpr_log, tpr_log, _ = roc_curve(y_true, y_pred_proba_log)
-    roc_auc_log = auc(fpr_log, tpr_log)
-    # logistic regression precision recall curve and PR area
+    roc_auc_log = calculate_auroc_score(y_true, y_pred_proba_log)
+
     precision_log, recall_log, _ = precision_recall_curve(y_true, y_pred_proba_log)
-    prc_auc_log = average_precision_score(y_true, y_pred_proba_log)
+    prc_auc_log = calculate_auprc_score(y_true, y_pred_proba_log)
 
     # create subplots
     fig, (ax1, ax2) = plt.subplots(1, 2)
