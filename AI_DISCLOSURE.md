@@ -34,11 +34,11 @@ __X___ Yes     _____ No
 
 2. **What specific things did you ask them to do?** (Be specific)
    
-   __I kept getting an error for split_and_scale test when all the other tests are either passed or skipped. I tried to fix the code myself but the error was persistent and I didn't know what I did wrong, so I used ChatGPT to better understand where the error originated._________
+   __I kept getting an error for split_and_scale test when all the other tests are either passed or skipped. I tried to fix the code myself but the error was persistent and I didn't know what I did wrong, so I used ChatGPT to better understand where the error originated. I also had issues during implementation, but the code itself does not have any issues, it only occured when I tried to run on the jupyter notebook file, so I used AI to help with that._________
 
 3. **How much of your final code came from AI vs. your own work?** (e.g., "AI gave me the formula, I wrote the loop" or "AI helped me debug an error")
    
-   ___I had a better understanding on the error, but did not implement the changes suggested by ChatGPT (it didn't really make sense)._________
+   ___I had a better understanding on the error, but did not implement the changes suggested by ChatGPT (it didn't really make sense). I also ended up just moving the notebook file out of the folder, cleared output, restarted jupyter, and things worked fine._________
 
 4. **Can you explain your code?** (Can you walk through what each function does and why you wrote it that way?)
    
